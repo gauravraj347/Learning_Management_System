@@ -1,7 +1,10 @@
 import config from "./src/config/index.js";
+import connectDB from "./src/config/db.js";
 import createApp from "./src/app.js";
 
 const start = async () => {
+  // Connect to MongoDB
+  await connectDB();
 
   // Create Express app
   const app = createApp();
