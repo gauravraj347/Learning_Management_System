@@ -24,20 +24,28 @@ const CourseDetail = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Fetch course
-        const { data: courseData } = await api.get(`/courses/${id}`);
-        setCourse(courseData.data);
-
-        // Fetch lessons
-        try {
-          const { data: lessonData } = await api.get(`/courses/${id}/lessons`);
-          setLessons(lessonData.data || []);
-        } catch { setLessons([]); }
+        // Fetch course — backend returns { data: { course, lessons } }
+        const { data: courseRes } = await api.get(`/courses/${id}`);
+        const result = courseRes.data || courseRes;
+        
+        // Handle both shapes: { course, lessons } or just course object
+        if (result.course) {
+          setCourse(result.course);
+          setLessons(result.lessons || []);
+        } else {
+          setCourse(result);
+          // Fetch lessons separately if not included
+          try {
+            const { data: lessonData } = await api.get(`/courses/${id}/lessons`);
+            setLessons(lessonData.data || []);
+          } catch { setLessons([]); }
+        }
 
         // Fetch reviews
         try {
           const { data: reviewData } = await api.get(`/reviews/${id}`);
-          setReviews(reviewData.data?.reviews || reviewData.data || []);
+          const reviewResult = reviewData.data || reviewData;
+          setReviews(Array.isArray(reviewResult) ? reviewResult : reviewResult.reviews || []);
         } catch { setReviews([]); }
 
         // Check enrollment
@@ -67,7 +75,7 @@ const CourseDetail = () => {
     if (!user) { navigate('/login'); return; }
     setEnrolling(true);
     try {
-      if (course.price === 0) {
+      if ((course.price || 0) === 0) {
         await api.post(`/enrollments/${id}`);
         toast.success('Enrolled successfully! 🎉');
         setEnrollment({ status: 'active' });
@@ -199,7 +207,7 @@ const CourseDetail = () => {
               >
                 {enrolling ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : course.price === 0 ? (
+                ) : (course.price || 0) === 0 ? (
                   'Enroll for Free'
                 ) : (
                   `Buy Now — ₹${course.price}`
