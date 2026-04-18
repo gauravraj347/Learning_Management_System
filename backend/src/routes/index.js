@@ -5,6 +5,7 @@ import courseRoutes from "../modules/course/course.routes.js";
 import enrollmentRoutes from "../modules/enrollment/enrollment.routes.js";
 import dashboardRoutes from "../modules/dashboard/dashboard.routes.js";
 import progressRoutes from "../modules/progress/progress.routes.js";
+import reviewRoutes from "../modules/review/review.routes.js";
 
 const router = Router();
 
@@ -14,4 +15,5 @@ router.use("/courses", courseRoutes);
 router.use("/enrollments", enrollmentRoutes);
 router.use("/dashboard", dashboardRoutes);
 router.use("/progress", progressRoutes);
+router.use("/reviews", reviewRoutes);
 export default router;
