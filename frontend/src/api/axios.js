@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE = '/api/v1';
+// In production (Vercel): VITE_API_URL = https://your-app.onrender.com/api/v1
+// In development: falls back to /api/v1 (Vite proxy handles it)
+const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE,
