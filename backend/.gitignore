@@ -1,6 +1,12 @@
-# Dependencies
 node_modules/
-
-# Environment variables
+dist/
 .env
+*.log
+coverage/
+.DS_Store
 
+# Uploaded files (keep dirs via .gitkeep)
+uploads/thumbnails/*
+uploads/videos/*
+uploads/certificates/*
+!uploads/**/.gitkeep

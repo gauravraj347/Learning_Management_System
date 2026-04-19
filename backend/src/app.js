@@ -17,7 +17,9 @@ const createApp = () => {
   app.use(helmet());
   app.use(
     cors({
-      origin: config.env === "development" ? true : process.env.CLIENT_URL,
+      origin: config.env === "development"
+        ? true
+        : (process.env.CLIENT_URL || "").split(",").map((s) => s.trim()),
       credentials: true,
     })
   );

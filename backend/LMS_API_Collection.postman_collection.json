@@ -1,0 +1,1193 @@
+{
+  "info": {
+    "name": "LMS Node Backend API",
+    "description": "Complete API collection for the LMS Node Backend — Auth, Categories, Courses, Lessons, Enrollments, Progress, Reviews, Dashboard",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api/v1"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "studentToken",
+      "value": ""
+    },
+    {
+      "key": "categoryId",
+      "value": ""
+    },
+    {
+      "key": "courseId",
+      "value": ""
+    },
+    {
+      "key": "lessonId",
+      "value": ""
+    },
+    {
+      "key": "freeCourseId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register - Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin@lms.com\",\n  \"password\": \"admin123\",\n  \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "  pm.collectionVariables.set('token', jsonData.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register - Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Student\",\n  \"email\": \"student@lms.com\",\n  \"password\": \"student123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "  pm.collectionVariables.set('studentToken', jsonData.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login - Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@lms.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "  pm.collectionVariables.set('token', jsonData.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login - Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@lms.com\",\n  \"password\": \"student123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "  pm.collectionVariables.set('studentToken', jsonData.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Login - Invalid Credentials",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@lms.com\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Register - Validation Error",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"invalid\",\n  \"password\": \"12\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin Updated\",\n  \"bio\": \"LMS Platform Administrator\",\n  \"phone\": \"+919876543210\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"admin123\",\n  \"newPassword\": \"newadmin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/change-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "change-password"]
+            }
+          }
+        },
+        {
+          "name": "Upload Avatar",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "thumbnail",
+                  "type": "file",
+                  "src": "",
+                  "description": "Select an avatar image (jpg, png — max 5MB)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/avatar",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "avatar"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Web Development\",\n  \"description\": \"Full-stack web development courses\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data._id) {",
+                  "  pm.collectionVariables.set('categoryId', jsonData.data._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Category - Mobile Dev",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mobile Development\",\n  \"description\": \"iOS and Android development courses\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            }
+          }
+        },
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            }
+          }
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "{{categoryId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Web Development Updated\",\n  \"description\": \"Updated description for web dev\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "{{categoryId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Category (Soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "{{categoryId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Courses",
+      "item": [
+        {
+          "name": "Create Course (Paid)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Node.js Masterclass\",\n  \"description\": \"Learn Node.js from zero to production\",\n  \"price\": 999,\n  \"category\": \"{{categoryId}}\",\n  \"isPublished\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data._id) {",
+                  "  pm.collectionVariables.set('courseId', jsonData.data._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Course (Free)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"HTML & CSS Crash Course\",\n  \"description\": \"Free crash course on HTML and CSS basics\",\n  \"price\": 0,\n  \"category\": \"{{categoryId}}\",\n  \"isPublished\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data._id) {",
+                  "  pm.collectionVariables.set('freeCourseId', jsonData.data._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get All Courses",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses"]
+            }
+          }
+        },
+        {
+          "name": "Get All Courses - With Search",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/courses?search=node&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses"],
+              "query": [
+                { "key": "search", "value": "node" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Courses - By Category",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/courses?category={{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses"],
+              "query": [
+                { "key": "category", "value": "{{categoryId}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Course by ID (with Lessons)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "{{courseId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Course",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Node.js Masterclass 2025\",\n  \"price\": 1299,\n  \"isPublished\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "{{courseId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Course (Soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "{{courseId}}"]
+            }
+          }
+        },
+        {
+          "name": "Upload Thumbnail",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "thumbnail",
+                  "type": "file",
+                  "src": "",
+                  "description": "Select an image file (jpg, png, webp — max 5MB)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseId}}/thumbnail",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "{{courseId}}", "thumbnail"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lessons",
+      "item": [
+        {
+          "name": "Create Lesson - Intro (Free)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Introduction - What you will learn\",\n  \"content\": \"Welcome to the course! In this lesson we cover the roadmap.\",\n  \"isFree\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseId}}/lessons",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "{{courseId}}", "lessons"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data._id) {",
+                  "  pm.collectionVariables.set('lessonId', jsonData.data._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Lesson - Setup",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Environment Setup\",\n  \"content\": \"Install Node.js, VS Code, and configure your dev environment.\",\n  \"videoUrl\": \"https://www.youtube.com/watch?v=example\",\n  \"isFree\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseId}}/lessons",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "{{courseId}}", "lessons"]
+            }
+          }
+        },
+        {
+          "name": "Create Lesson - First App",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Building Your First Express App\",\n  \"content\": \"Create a Hello World server with Express.js\",\n  \"isFree\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseId}}/lessons",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "{{courseId}}", "lessons"]
+            }
+          }
+        },
+        {
+          "name": "Get All Lessons for Course",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseId}}/lessons",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "{{courseId}}", "lessons"]
+            }
+          }
+        },
+        {
+          "name": "Get Lesson by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseId}}/lessons/{{lessonId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "{{courseId}}", "lessons", "{{lessonId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Lesson",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Introduction - Updated Title\",\n  \"content\": \"Updated content for the intro lesson\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseId}}/lessons/{{lessonId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "{{courseId}}", "lessons", "{{lessonId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Lesson",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseId}}/lessons/{{lessonId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "{{courseId}}", "lessons", "{{lessonId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Enrollments",
+      "description": "Enrollment management — enroll in courses, check status, cancel. Use studentToken for student actions.",
+      "item": [
+        {
+          "name": "Enroll in Free Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/{{freeCourseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "{{freeCourseId}}"]
+            }
+          }
+        },
+        {
+          "name": "Enroll in Paid Course (Simulated Payment)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentId\": \"pay_test_123456\",\n  \"amount\": 999\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/{{courseId}}/payment",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "{{courseId}}", "payment"]
+            }
+          }
+        },
+        {
+          "name": "Check Enrollment Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/{{courseId}}/check",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "{{courseId}}", "check"]
+            }
+          }
+        },
+        {
+          "name": "Get My Enrollments",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "my"]
+            }
+          }
+        },
+        {
+          "name": "Get My Enrollments - With Status Filter",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/my?status=active&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "my"],
+              "query": [
+                { "key": "status", "value": "active" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Course Enrollments (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/course/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "course", "{{courseId}}"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Enrollment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/{{freeCourseId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "{{freeCourseId}}", "cancel"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Progress",
+      "description": "Track lesson completion and watch time. Student must be enrolled in the course.",
+      "item": [
+        {
+          "name": "Mark Lesson Complete",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progress/{{courseId}}/lessons/{{lessonId}}/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["progress", "{{courseId}}", "lessons", "{{lessonId}}", "complete"]
+            }
+          }
+        },
+        {
+          "name": "Update Watch Time",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"watchedSeconds\": 320\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/progress/{{courseId}}/lessons/{{lessonId}}/watch",
+              "host": ["{{baseUrl}}"],
+              "path": ["progress", "{{courseId}}", "lessons", "{{lessonId}}", "watch"]
+            }
+          }
+        },
+        {
+          "name": "Get Course Progress",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progress/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["progress", "{{courseId}}"]
+            }
+          }
+        },
+        {
+          "name": "Reset Lesson Progress",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progress/{{courseId}}/lessons/{{lessonId}}/reset",
+              "host": ["{{baseUrl}}"],
+              "path": ["progress", "{{courseId}}", "lessons", "{{lessonId}}", "reset"]
+            }
+          }
+        },
+        {
+          "name": "Download Certificate",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progress/{{courseId}}/certificate",
+              "host": ["{{baseUrl}}"],
+              "path": ["progress", "{{courseId}}", "certificate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "description": "Course reviews — students must be enrolled to submit a review (rating 1-5).",
+      "item": [
+        {
+          "name": "Submit Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Excellent course! Learned a lot about Node.js backend development.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "{{courseId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Great course, but could use more exercises.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "{{courseId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Course Reviews",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{courseId}}?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "{{courseId}}"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Review",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{courseId}}/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "{{courseId}}", "my"]
+            }
+          }
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "{{courseId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "description": "Admin and Student dashboards with analytics and progress overview.",
+      "item": [
+        {
+          "name": "Admin Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/admin",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "admin"]
+            }
+          }
+        },
+        {
+          "name": "Student Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/student",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "student"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wishlist",
+      "description": "Save courses for later. All routes require authentication.",
+      "item": [
+        {
+          "name": "Add to Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wishlist/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["wishlist", "{{courseId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get My Wishlist",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wishlist",
+              "host": ["{{baseUrl}}"],
+              "path": ["wishlist"]
+            }
+          }
+        },
+        {
+          "name": "Check Wishlist Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wishlist/{{courseId}}/check",
+              "host": ["{{baseUrl}}"],
+              "path": ["wishlist", "{{courseId}}", "check"]
+            }
+          }
+        },
+        {
+          "name": "Remove from Wishlist",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wishlist/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["wishlist", "{{courseId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments (Razorpay)",
+      "description": "Razorpay payment integration. Flow: Create Order → Razorpay Checkout → Verify Payment → Auto Enrollment.",
+      "item": [
+        {
+          "name": "Create Order (Paid Course)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/create-order/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "create-order", "{{courseId}}"]
+            }
+          }
+        },
+        {
+          "name": "Verify Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"razorpay_order_id\": \"order_xxxxxxxxxxxxx\",\n  \"razorpay_payment_id\": \"pay_xxxxxxxxxxxxx\",\n  \"razorpay_signature\": \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "verify"]
+            }
+          }
+        },
+        {
+          "name": "My Payment History",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "my"]
+            }
+          }
+        },
+        {
+          "name": "Get Payment by Order ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/order/order_xxxxxxxxxxxxx",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "order", "order_xxxxxxxxxxxxx"]
+            }
+          }
+        },
+        {
+          "name": "All Payments (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/all?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "all"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:5000/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "404 - Route Not Found",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/nonexistent",
+              "host": ["{{baseUrl}}"],
+              "path": ["nonexistent"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
