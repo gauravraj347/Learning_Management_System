@@ -7,6 +7,7 @@ import dashboardRoutes from "../modules/dashboard/dashboard.routes.js";
 import progressRoutes from "../modules/progress/progress.routes.js";
 import reviewRoutes from "../modules/review/review.routes.js";
 import paymentRoutes from "../modules/payment/payment.routes.js";
+import wishlistRoutes from "../modules/wishlist/wishlist.routes.js";
 
 
 const router = Router();
@@ -19,4 +20,5 @@ router.use("/dashboard", dashboardRoutes);
 router.use("/progress", progressRoutes);
 router.use("/reviews", reviewRoutes);
 router.use("/payments", paymentRoutes);
+router.use("/wishlist", wishlistRoutes);
 export default router;
