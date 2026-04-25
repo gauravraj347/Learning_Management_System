@@ -36,10 +36,10 @@ const AdminDashboard = () => {
   }
 
   const cards = [
-    { icon: HiOutlineCurrencyRupee, label: 'Total Revenue', value: `₹${stats?.totalRevenue || 0}`, color: 'text-green-400', bg: 'bg-green-500/10' },
-    { icon: HiOutlineUsers, label: 'Total Students', value: stats?.totalStudents || 0, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-    { icon: HiOutlineBookOpen, label: 'Total Courses', value: stats?.totalCourses || 0, color: 'text-primary-light', bg: 'bg-primary/10' },
-    { icon: HiOutlineAcademicCap, label: 'Enrollments', value: stats?.totalEnrollments || 0, color: 'text-yellow-400', bg: 'bg-yellow-500/10' },
+    { icon: HiOutlineCurrencyRupee, label: 'Total Revenue', value: `₹${stats?.overview?.totalRevenue || 0}`, color: 'text-green-400', bg: 'bg-green-500/10' },
+    { icon: HiOutlineUsers, label: 'Total Students', value: stats?.overview?.totalStudents || 0, color: 'text-blue-400', bg: 'bg-blue-500/10' },
+    { icon: HiOutlineBookOpen, label: 'Total Courses', value: stats?.overview?.totalCourses || 0, color: 'text-primary-light', bg: 'bg-primary/10' },
+    { icon: HiOutlineAcademicCap, label: 'Enrollments', value: stats?.overview?.totalEnrollments || 0, color: 'text-yellow-400', bg: 'bg-yellow-500/10' },
   ];
 
   return (
@@ -53,6 +53,9 @@ const AdminDashboard = () => {
         <div className="flex gap-3">
           <Link to="/admin/categories" className="px-4 py-2.5 glass hover:bg-white/10 rounded-xl text-sm font-medium text-gray-300 flex items-center gap-2">
             <HiOutlineCollection className="w-4 h-4" /> Categories
+          </Link>
+          <Link to="/admin/payments" className="px-4 py-2.5 glass hover:bg-white/10 rounded-xl text-sm font-medium text-gray-300 flex items-center gap-2">
+            <HiOutlineCurrencyRupee className="w-4 h-4" /> Payments
           </Link>
           <Link to="/admin/courses" className="px-4 py-2.5 bg-primary hover:bg-primary-dark rounded-xl text-sm font-medium text-white flex items-center gap-2">
             <HiOutlineBookOpen className="w-4 h-4" /> Courses

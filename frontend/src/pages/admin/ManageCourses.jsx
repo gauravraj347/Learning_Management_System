@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
-import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash, HiOutlineX, HiOutlineEye, HiOutlineEyeOff } from 'react-icons/hi';
+import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash, HiOutlineX, HiOutlineEye, HiOutlineEyeOff, HiOutlineUpload, HiOutlineBookOpen } from 'react-icons/hi';
 
 const ManageCourses = () => {
   const [courses, setCourses] = useState([]);
@@ -79,6 +79,20 @@ const ManageCourses = () => {
     }
   };
 
+  const handleThumbnailUpload = async (courseId, file) => {
+    const formData = new FormData();
+    formData.append('thumbnail', file);
+    try {
+      await api.post(`/courses/${courseId}/thumbnail`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      toast.success('Thumbnail uploaded');
+      fetchCourses();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Upload failed');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -128,13 +142,20 @@ const ManageCourses = () => {
               </div>
 
               <div className="flex items-center gap-1 shrink-0">
-                <Link to={`/courses/${course._id}`} className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white">
+                <Link to={`/admin/courses/${course._id}/lessons`} className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-green-400" title="Manage Lessons">
+                  <HiOutlineBookOpen className="w-4 h-4" />
+                </Link>
+                <label className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-yellow-400 cursor-pointer" title="Upload Thumbnail">
+                  <HiOutlineUpload className="w-4 h-4" />
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files[0]) handleThumbnailUpload(course._id, e.target.files[0]); }} />
+                </label>
+                <Link to={`/courses/${course._id}`} className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white" title="View">
                   <HiOutlineEye className="w-4 h-4" />
                 </Link>
-                <button onClick={() => openEdit(course)} className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-primary-light">
+                <button onClick={() => openEdit(course)} className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-primary-light" title="Edit">
                   <HiOutlinePencil className="w-4 h-4" />
                 </button>
-                <button onClick={() => handleDelete(course._id)} className="p-2 rounded-lg hover:bg-accent/10 text-gray-400 hover:text-accent">
+                <button onClick={() => handleDelete(course._id)} className="p-2 rounded-lg hover:bg-accent/10 text-gray-400 hover:text-accent" title="Delete">
                   <HiOutlineTrash className="w-4 h-4" />
                 </button>
               </div>

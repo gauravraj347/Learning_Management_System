@@ -4,7 +4,7 @@ import api from '../api/axios';
 import toast from 'react-hot-toast';
 import {
   HiOutlineCheckCircle, HiOutlinePlay, HiOutlineDownload,
-  HiOutlineArrowLeft, HiOutlineBookOpen
+  HiOutlineArrowLeft, HiOutlineBookOpen, HiOutlineRefresh
 } from 'react-icons/hi';
 
 const CourseProgress = () => {
@@ -39,9 +39,11 @@ const CourseProgress = () => {
   const handleMarkComplete = async (lessonId) => {
     setMarking(lessonId);
     try {
-      const { data } = await api.put(`/progress/${courseId}/lesson/${lessonId}`);
-      setProgress(data.data);
-      if (data.data.progressPercent === 100) {
+      const { data } = await api.post(`/progress/${courseId}/lessons/${lessonId}/complete`);
+      // Re-fetch full progress to get updated percentages
+      const { data: progressRes } = await api.get(`/progress/${courseId}`);
+      setProgress(progressRes.data);
+      if (progressRes.data?.progressPercent === 100) {
         toast.success('🎉 Course completed! Certificate generated!');
       } else {
         toast.success('Lesson marked as complete');
@@ -55,20 +57,29 @@ const CourseProgress = () => {
 
   const handleDownloadCertificate = async () => {
     try {
-      const response = await api.get(`/progress/${courseId}/certificate`, {
-        responseType: 'blob',
-      });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `certificate-${courseId}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-      toast.success('Certificate downloaded!');
+      const { data } = await api.get(`/progress/${courseId}/certificate`);
+      const certUrl = data.data?.certificateUrl;
+      if (certUrl) {
+        const baseURL = api.defaults.baseURL?.replace('/api/v1', '') || '';
+        const fullUrl = certUrl.startsWith('http') ? certUrl : `${baseURL}${certUrl}`;
+        window.open(fullUrl, '_blank');
+        toast.success('Certificate opened!');
+      } else {
+        toast.error('Certificate URL not found');
+      }
     } catch {
       toast.error('Certificate not available yet');
+    }
+  };
+
+  const handleResetLesson = async (lessonId) => {
+    try {
+      await api.post(`/progress/${courseId}/lessons/${lessonId}/reset`);
+      const { data: progressRes } = await api.get(`/progress/${courseId}`);
+      setProgress(progressRes.data);
+      toast.success('Lesson progress reset');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to reset');
     }
   };
 
@@ -179,7 +190,15 @@ const CourseProgress = () => {
                   Mark Done
                 </button>
               ) : (
-                <span className="text-xs text-green-400 font-medium shrink-0">✓ Completed</span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-xs text-green-400 font-medium">✓ Done</span>
+                  <button
+                    onClick={() => handleResetLesson(lesson._id)}
+                    className="p-1.5 rounded-lg hover:bg-white/10 text-gray-500 hover:text-yellow-400" title="Reset progress"
+                  >
+                    <HiOutlineRefresh className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               )}
             </div>
           );

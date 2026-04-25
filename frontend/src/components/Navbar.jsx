@@ -43,6 +43,9 @@ const Navbar = () => {
                     <Link to="/wishlist" className="text-gray-300 hover:text-white text-sm font-medium">
                       Wishlist
                     </Link>
+                    <Link to="/payments" className="text-gray-300 hover:text-white text-sm font-medium">
+                      Payments
+                    </Link>
                   </>
                 )}
 
@@ -108,6 +111,9 @@ const Navbar = () => {
                   </Link>
                   <Link to="/wishlist" onClick={() => setMobileOpen(false)} className="block py-2 text-gray-300 hover:text-white">
                     Wishlist
+                  </Link>
+                  <Link to="/payments" onClick={() => setMobileOpen(false)} className="block py-2 text-gray-300 hover:text-white">
+                    Payments
                   </Link>
                 </>
               )}

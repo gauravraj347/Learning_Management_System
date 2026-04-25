@@ -5,7 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import {
   HiOutlineStar, HiOutlineBookOpen, HiOutlineClock, HiOutlinePlay,
-  HiOutlineLockClosed, HiOutlineCheckCircle, HiOutlineHeart, HiOutlineUsers
+  HiOutlineLockClosed, HiOutlineCheckCircle, HiOutlineHeart, HiOutlineUsers,
+  HiOutlineTrash, HiOutlinePencil
 } from 'react-icons/hi';
 
 const CourseDetail = () => {
@@ -20,21 +21,25 @@ const CourseDetail = () => {
   const [enrolling, setEnrolling] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
 
+  // Review state
+  const [myReview, setMyReview] = useState(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
+  const [submittingReview, setSubmittingReview] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Fetch course — backend returns { data: { course, lessons } }
+        // Fetch course
         const { data: courseRes } = await api.get(`/courses/${id}`);
         const result = courseRes.data || courseRes;
-        
-        // Handle both shapes: { course, lessons } or just course object
+
         if (result.course) {
           setCourse(result.course);
           setLessons(result.lessons || []);
         } else {
           setCourse(result);
-          // Fetch lessons separately if not included
           try {
             const { data: lessonData } = await api.get(`/courses/${id}/lessons`);
             setLessons(lessonData.data || []);
@@ -48,10 +53,11 @@ const CourseDetail = () => {
           setReviews(Array.isArray(reviewResult) ? reviewResult : reviewResult.reviews || []);
         } catch { setReviews([]); }
 
-        // Check enrollment
+        // Authenticated checks
         if (user) {
+          // Check enrollment
           try {
-            const { data: enrollData } = await api.get(`/enrollments/check/${id}`);
+            const { data: enrollData } = await api.get(`/enrollments/${id}/check`);
             setEnrollment(enrollData.data?.isEnrolled ? enrollData.data.enrollment : null);
           } catch { setEnrollment(null); }
 
@@ -60,6 +66,16 @@ const CourseDetail = () => {
             const { data: wishData } = await api.get(`/wishlist/${id}/check`);
             setWishlisted(wishData.data?.isWishlisted || false);
           } catch { setWishlisted(false); }
+
+          // Get my review
+          try {
+            const { data: myRevData } = await api.get(`/reviews/${id}/my`);
+            const rev = myRevData.data?.review || null;
+            setMyReview(rev);
+            if (rev) {
+              setReviewForm({ rating: rev.rating, comment: rev.comment || '' });
+            }
+          } catch { setMyReview(null); }
         }
       } catch {
         toast.error('Course not found');
@@ -80,7 +96,6 @@ const CourseDetail = () => {
         toast.success('Enrolled successfully! 🎉');
         setEnrollment({ status: 'active' });
       } else {
-        // Create Razorpay order
         const { data } = await api.post(`/payments/create-order/${id}`);
         const orderData = data.data;
 
@@ -130,6 +145,44 @@ const CourseDetail = () => {
         setWishlisted(true);
         toast.success('Added to wishlist ❤️');
       }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed');
+    }
+  };
+
+  // Review handlers
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    if (!user) { navigate('/login'); return; }
+    setSubmittingReview(true);
+    try {
+      const { data } = await api.post(`/reviews/${id}`, reviewForm);
+      const newReview = data.data;
+      toast.success(myReview ? 'Review updated!' : 'Review submitted! ⭐');
+      setMyReview(newReview);
+      setShowReviewForm(false);
+      // Refresh reviews list
+      const { data: reviewData } = await api.get(`/reviews/${id}`);
+      const reviewResult = reviewData.data || reviewData;
+      setReviews(Array.isArray(reviewResult) ? reviewResult : reviewResult.reviews || []);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to submit review');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
+  const handleDeleteReview = async () => {
+    if (!confirm('Delete your review?')) return;
+    try {
+      await api.delete(`/reviews/${id}`);
+      toast.success('Review deleted');
+      setMyReview(null);
+      setReviewForm({ rating: 5, comment: '' });
+      // Refresh reviews
+      const { data: reviewData } = await api.get(`/reviews/${id}`);
+      const reviewResult = reviewData.data || reviewData;
+      setReviews(Array.isArray(reviewResult) ? reviewResult : reviewResult.reviews || []);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed');
     }
@@ -192,10 +245,10 @@ const CourseDetail = () => {
                 Enrolled
               </div>
               <button
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate(`/progress/${id}`)}
                 className="w-full py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl"
               >
-                Go to My Learning
+                Continue Learning
               </button>
             </div>
           ) : (
@@ -260,12 +313,121 @@ const CourseDetail = () => {
         </div>
       </section>
 
-      {/* Reviews */}
+      {/* My Review / Write Review — only if enrolled */}
+      {user && enrollment && (
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-white">Your Review</h2>
+            {!showReviewForm && (
+              <button
+                onClick={() => setShowReviewForm(true)}
+                className="px-4 py-2 text-sm font-medium bg-primary/10 text-primary-light rounded-lg hover:bg-primary/20 flex items-center gap-1.5"
+              >
+                <HiOutlinePencil className="w-4 h-4" />
+                {myReview ? 'Edit Review' : 'Write Review'}
+              </button>
+            )}
+          </div>
+
+          {/* Existing review display */}
+          {myReview && !showReviewForm && (
+            <div className="glass rounded-xl p-5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold text-primary-light">
+                    {user.name?.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="text-white font-medium text-sm">{user.name}</p>
+                    <div className="flex items-center gap-0.5">
+                      {[...Array(5)].map((_, i) => (
+                        <HiOutlineStar
+                          key={i}
+                          className={`w-3.5 h-3.5 ${i < myReview.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600'}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={handleDeleteReview}
+                  className="p-2 rounded-lg hover:bg-accent/10 text-gray-400 hover:text-accent"
+                  title="Delete review"
+                >
+                  <HiOutlineTrash className="w-4 h-4" />
+                </button>
+              </div>
+              {myReview.comment && <p className="text-gray-400 text-sm mt-3">{myReview.comment}</p>}
+            </div>
+          )}
+
+          {/* Review form */}
+          {showReviewForm && (
+            <form onSubmit={handleSubmitReview} className="glass rounded-xl p-5 space-y-4">
+              {/* Star rating */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Rating</label>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                      className="p-0.5 hover:scale-110 transition-transform"
+                    >
+                      <HiOutlineStar
+                        className={`w-7 h-7 ${star <= reviewForm.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600'}`}
+                      />
+                    </button>
+                  ))}
+                  <span className="ml-2 text-sm text-gray-400">{reviewForm.rating}/5</span>
+                </div>
+              </div>
+              {/* Comment */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Comment (optional)</label>
+                <textarea
+                  value={reviewForm.comment}
+                  onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                  placeholder="Share your experience with this course..."
+                  rows={3}
+                  maxLength={1000}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary resize-none"
+                />
+                <p className="text-xs text-gray-500 mt-1">{reviewForm.comment.length}/1000</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowReviewForm(false)}
+                  className="flex-1 py-3 glass hover:bg-white/10 rounded-xl text-gray-300 font-medium"
+                >Cancel</button>
+                <button
+                  type="submit"
+                  disabled={submittingReview}
+                  className="flex-1 py-3 bg-primary hover:bg-primary-dark rounded-xl text-white font-medium disabled:opacity-50"
+                >
+                  {submittingReview ? 'Submitting...' : myReview ? 'Update Review' : 'Submit Review'}
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* No review yet and form not open */}
+          {!myReview && !showReviewForm && (
+            <div className="glass rounded-xl p-5 text-center text-gray-400">
+              <p>You haven't reviewed this course yet.</p>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* All Reviews */}
       {reviews.length > 0 && (
         <section>
-          <h2 className="text-2xl font-bold text-white mb-4">Reviews</h2>
+          <h2 className="text-2xl font-bold text-white mb-4">Reviews ({reviews.length})</h2>
           <div className="space-y-4">
-            {reviews.slice(0, 5).map((review) => (
+            {reviews.map((review) => (
               <div key={review._id} className="glass rounded-xl p-5">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold text-primary-light">

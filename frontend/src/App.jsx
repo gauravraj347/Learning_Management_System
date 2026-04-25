@@ -12,9 +12,12 @@ import StudentDashboard from './pages/StudentDashboard';
 import Wishlist from './pages/Wishlist';
 import Profile from './pages/Profile';
 import CourseProgress from './pages/CourseProgress';
+import PaymentHistory from './pages/PaymentHistory';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageCategories from './pages/admin/ManageCategories';
 import ManageCourses from './pages/admin/ManageCourses';
+import ManageLessons from './pages/admin/ManageLessons';
+import AdminPayments from './pages/admin/AdminPayments';
 
 function App() {
   return (
@@ -47,11 +50,14 @@ function App() {
             <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/progress/:courseId" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
+            <Route path="/payments" element={<ProtectedRoute><PaymentHistory /></ProtectedRoute>} />
 
             {/* Admin */}
             <Route path="/admin/dashboard" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
             <Route path="/admin/categories" element={<ProtectedRoute adminOnly><ManageCategories /></ProtectedRoute>} />
             <Route path="/admin/courses" element={<ProtectedRoute adminOnly><ManageCourses /></ProtectedRoute>} />
+            <Route path="/admin/courses/:courseId/lessons" element={<ProtectedRoute adminOnly><ManageLessons /></ProtectedRoute>} />
+            <Route path="/admin/payments" element={<ProtectedRoute adminOnly><AdminPayments /></ProtectedRoute>} />
           </Route>
         </Routes>
       </AuthProvider>

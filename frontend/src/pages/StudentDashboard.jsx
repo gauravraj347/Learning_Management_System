@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { HiOutlineBookOpen, HiOutlineAcademicCap, HiOutlineChartBar, HiOutlineClock } from 'react-icons/hi';
+import toast from 'react-hot-toast';
+import { HiOutlineBookOpen, HiOutlineAcademicCap, HiOutlineChartBar, HiOutlineClock, HiOutlineXCircle } from 'react-icons/hi';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -30,6 +31,17 @@ const StudentDashboard = () => {
     };
     fetchData();
   }, []);
+
+  const handleCancelEnrollment = async (courseId, courseTitle) => {
+    if (!confirm(`Cancel enrollment in "${courseTitle}"? This cannot be undone.`)) return;
+    try {
+      await api.post(`/enrollments/${courseId}/cancel`);
+      toast.success('Enrollment cancelled');
+      setEnrollments(prev => prev.filter(e => (e.course?._id || e.course) !== courseId));
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to cancel');
+    }
+  };
 
   if (loading) {
     return (
@@ -173,6 +185,16 @@ const StudentDashboard = () => {
                         />
                       </div>
                     </div>
+
+                    {/* Cancel button (only for active enrollments) */}
+                    {enrollment.status === 'active' && (
+                      <button
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleCancelEnrollment(course._id, course.title); }}
+                        className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-accent font-medium pt-1"
+                      >
+                        <HiOutlineXCircle className="w-3.5 h-3.5" /> Cancel Enrollment
+                      </button>
+                    )}
                   </div>
                 </Link>
               );
