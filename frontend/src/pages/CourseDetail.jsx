@@ -9,6 +9,48 @@ import {
   HiOutlineTrash, HiOutlinePencil
 } from 'react-icons/hi';
 
+// Convert any video URL to embeddable format
+// Supports: YouTube, Vimeo, Dailymotion, and direct video links
+const getVideoEmbed = (url) => {
+  if (!url) return null;
+  try {
+    const urlObj = new URL(url);
+    const host = urlObj.hostname;
+
+    // YouTube
+    if (host.includes('youtu.be')) {
+      return { type: 'iframe', src: `https://www.youtube.com/embed/${urlObj.pathname.slice(1)}` };
+    }
+    if (host.includes('youtube.com')) {
+      const id = urlObj.searchParams.get('v');
+      if (id) return { type: 'iframe', src: `https://www.youtube.com/embed/${id}` };
+    }
+
+    // Vimeo
+    if (host.includes('vimeo.com')) {
+      const id = urlObj.pathname.split('/').filter(Boolean).pop();
+      if (id) return { type: 'iframe', src: `https://player.vimeo.com/video/${id}` };
+    }
+
+    // Dailymotion
+    if (host.includes('dailymotion.com')) {
+      const id = urlObj.pathname.split('/').pop()?.replace('video_', '');
+      if (id) return { type: 'iframe', src: `https://www.dailymotion.com/embed/video/${id}` };
+    }
+    if (host.includes('dai.ly')) {
+      return { type: 'iframe', src: `https://www.dailymotion.com/embed/video/${urlObj.pathname.slice(1)}` };
+    }
+
+    // Direct video file (mp4, webm, ogg)
+    if (/\.(mp4|webm|ogg)(\?|$)/i.test(url)) {
+      return { type: 'video', src: url };
+    }
+
+    // Fallback: try as iframe (works for many platforms like Loom, Google Drive embeds, etc.)
+    return { type: 'iframe', src: url };
+  } catch { return null; }
+};
+
 const CourseDetail = () => {
   const { id } = useParams();
   const { user } = useAuth();
@@ -20,6 +62,7 @@ const CourseDetail = () => {
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
+  const [activeVideo, setActiveVideo] = useState(null);
 
   // Review state
   const [myReview, setMyReview] = useState(null);
@@ -289,26 +332,74 @@ const CourseDetail = () => {
           {lessons.length === 0 ? (
             <div className="p-8 text-center text-gray-400">No lessons available yet.</div>
           ) : (
-            lessons.map((lesson, index) => (
-              <div key={lesson._id} className="flex items-center gap-4 px-5 py-4 hover:bg-white/5">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary-light text-sm font-bold shrink-0">
-                  {index + 1}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-white font-medium truncate">{lesson.title}</h4>
-                  {lesson.content && (
-                    <p className="text-sm text-gray-400 truncate">{lesson.content}</p>
+            lessons.map((lesson, index) => {
+              const embed = getVideoEmbed(lesson.videoUrl);
+              const canWatch = enrollment || lesson.isFree;
+              const isActive = activeVideo === lesson._id;
+
+              return (
+                <div key={lesson._id}>
+                  <div
+                    className={`flex items-center gap-4 px-5 py-4 hover:bg-white/5 cursor-pointer ${isActive ? 'bg-white/5' : ''}`}
+                    onClick={() => {
+                      if (canWatch && embed) {
+                        setActiveVideo(isActive ? null : lesson._id);
+                      } else if (!canWatch && !lesson.isFree) {
+                        toast('Enroll to watch this lesson', { icon: '🔒' });
+                      }
+                    }}
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary-light text-sm font-bold shrink-0">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-white font-medium truncate">{lesson.title}</h4>
+                      {lesson.content && (
+                        <p className="text-sm text-gray-400 truncate">{lesson.content}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {embed && canWatch && (
+                        <span className="flex items-center gap-1 text-xs text-primary-light">
+                          <HiOutlinePlay className="w-4 h-4" />
+                          {isActive ? 'Hide' : 'Watch'}
+                        </span>
+                      )}
+                      {lesson.isFree ? (
+                        <span className="text-xs px-2 py-1 bg-green-500/10 text-green-400 rounded-full">Free</span>
+                      ) : (
+                        !enrollment && <HiOutlineLockClosed className="w-4 h-4 text-gray-500" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Video Embed */}
+                  {isActive && embed && canWatch && (
+                    <div className="px-5 pb-5">
+                      <div className="relative w-full rounded-xl overflow-hidden" style={{ paddingBottom: '56.25%' }}>
+                        {embed.type === 'video' ? (
+                          <video
+                            className="absolute inset-0 w-full h-full"
+                            src={embed.src}
+                            controls
+                            controlsList="nodownload"
+                          />
+                        ) : (
+                          <iframe
+                            className="absolute inset-0 w-full h-full"
+                            src={embed.src}
+                            title={lesson.title}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        )}
+                      </div>
+                    </div>
                   )}
                 </div>
-                <div className="shrink-0">
-                  {lesson.isFree ? (
-                    <span className="text-xs px-2 py-1 bg-green-500/10 text-green-400 rounded-full">Free</span>
-                  ) : (
-                    <HiOutlineLockClosed className="w-4 h-4 text-gray-500" />
-                  )}
-                </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </section>
