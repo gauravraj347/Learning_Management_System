@@ -7,6 +7,48 @@ import {
   HiOutlineArrowLeft, HiOutlineBookOpen, HiOutlineRefresh
 } from 'react-icons/hi';
 
+// Convert any video URL to embeddable format
+// Supports: YouTube, Vimeo, Dailymotion, and direct video links
+const getVideoEmbed = (url) => {
+  if (!url) return null;
+  try {
+    const urlObj = new URL(url);
+    const host = urlObj.hostname;
+
+    // YouTube
+    if (host.includes('youtu.be')) {
+      return { type: 'iframe', src: `https://www.youtube.com/embed/${urlObj.pathname.slice(1)}` };
+    }
+    if (host.includes('youtube.com')) {
+      const id = urlObj.searchParams.get('v');
+      if (id) return { type: 'iframe', src: `https://www.youtube.com/embed/${id}` };
+    }
+
+    // Vimeo
+    if (host.includes('vimeo.com')) {
+      const id = urlObj.pathname.split('/').filter(Boolean).pop();
+      if (id) return { type: 'iframe', src: `https://player.vimeo.com/video/${id}` };
+    }
+
+    // Dailymotion
+    if (host.includes('dailymotion.com')) {
+      const id = urlObj.pathname.split('/').pop()?.replace('video_', '');
+      if (id) return { type: 'iframe', src: `https://www.dailymotion.com/embed/video/${id}` };
+    }
+    if (host.includes('dai.ly')) {
+      return { type: 'iframe', src: `https://www.dailymotion.com/embed/video/${urlObj.pathname.slice(1)}` };
+    }
+
+    // Direct video file (mp4, webm, ogg)
+    if (/\.(mp4|webm|ogg)(\?|$)/i.test(url)) {
+      return { type: 'video', src: url };
+    }
+
+    // Fallback: try as iframe (works for many platforms like Loom, Google Drive embeds, etc.)
+    return { type: 'iframe', src: url };
+  } catch { return null; }
+};
+
 const CourseProgress = () => {
   const { courseId } = useParams();
   const [course, setCourse] = useState(null);
@@ -14,6 +56,7 @@ const CourseProgress = () => {
   const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(true);
   const [marking, setMarking] = useState(null);
+  const [activeVideo, setActiveVideo] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -151,53 +194,93 @@ const CourseProgress = () => {
           const isLessonDone = completedLessons.some(
             (cl) => (cl.lesson || cl) === lesson._id || cl.lesson?._id === lesson._id
           );
+          const embed = getVideoEmbed(lesson.videoUrl);
+          const isActive = activeVideo === lesson._id;
 
           return (
-            <div key={lesson._id} className="flex items-center gap-4 px-5 py-4 hover:bg-white/5">
-              {/* Number / Check */}
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                isLessonDone ? 'bg-green-500/10' : 'bg-white/5'
-              }`}>
-                {isLessonDone ? (
-                  <HiOutlineCheckCircle className="w-5 h-5 text-green-400" />
-                ) : (
-                  <span className="text-sm font-bold text-gray-500">{index + 1}</span>
-                )}
-              </div>
-
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <h4 className={`font-medium truncate ${isLessonDone ? 'text-gray-400 line-through' : 'text-white'}`}>
-                  {lesson.title}
-                </h4>
-                {lesson.content && (
-                  <p className="text-xs text-gray-500 truncate">{lesson.content}</p>
-                )}
-              </div>
-
-              {/* Action */}
-              {!isLessonDone ? (
-                <button
-                  onClick={() => handleMarkComplete(lesson._id)}
-                  disabled={marking === lesson._id}
-                  className="px-4 py-2 text-xs font-medium bg-primary/10 text-primary-light rounded-lg hover:bg-primary/20 disabled:opacity-50 flex items-center gap-1.5 shrink-0"
-                >
-                  {marking === lesson._id ? (
-                    <div className="w-3.5 h-3.5 border-2 border-primary-light/30 border-t-primary-light rounded-full animate-spin" />
+            <div key={lesson._id}>
+              <div className="flex items-center gap-4 px-5 py-4 hover:bg-white/5">
+                {/* Number / Check */}
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                  isLessonDone ? 'bg-green-500/10' : 'bg-white/5'
+                }`}>
+                  {isLessonDone ? (
+                    <HiOutlineCheckCircle className="w-5 h-5 text-green-400" />
                   ) : (
-                    <HiOutlinePlay className="w-3.5 h-3.5" />
+                    <span className="text-sm font-bold text-gray-500">{index + 1}</span>
                   )}
-                  Mark Done
-                </button>
-              ) : (
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-xs text-green-400 font-medium">✓ Done</span>
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <h4 className={`font-medium truncate ${isLessonDone ? 'text-gray-400 line-through' : 'text-white'}`}>
+                    {lesson.title}
+                  </h4>
+                  {lesson.content && (
+                    <p className="text-xs text-gray-500 truncate">{lesson.content}</p>
+                  )}
+                </div>
+
+                {/* Video toggle */}
+                {embed && (
                   <button
-                    onClick={() => handleResetLesson(lesson._id)}
-                    className="p-1.5 rounded-lg hover:bg-white/10 text-gray-500 hover:text-yellow-400" title="Reset progress"
+                    onClick={() => setActiveVideo(isActive ? null : lesson._id)}
+                    className="px-3 py-1.5 text-xs font-medium bg-primary/10 text-primary-light rounded-lg hover:bg-primary/20 flex items-center gap-1.5 shrink-0"
                   >
-                    <HiOutlineRefresh className="w-3.5 h-3.5" />
+                    <HiOutlinePlay className="w-3.5 h-3.5" />
+                    {isActive ? 'Hide Video' : 'Watch'}
                   </button>
+                )}
+
+                {/* Action */}
+                {!isLessonDone ? (
+                  <button
+                    onClick={() => handleMarkComplete(lesson._id)}
+                    disabled={marking === lesson._id}
+                    className="px-4 py-2 text-xs font-medium bg-primary/10 text-primary-light rounded-lg hover:bg-primary/20 disabled:opacity-50 flex items-center gap-1.5 shrink-0"
+                  >
+                    {marking === lesson._id ? (
+                      <div className="w-3.5 h-3.5 border-2 border-primary-light/30 border-t-primary-light rounded-full animate-spin" />
+                    ) : (
+                      <HiOutlineCheckCircle className="w-3.5 h-3.5" />
+                    )}
+                    Mark Done
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-xs text-green-400 font-medium">✓ Done</span>
+                    <button
+                      onClick={() => handleResetLesson(lesson._id)}
+                      className="p-1.5 rounded-lg hover:bg-white/10 text-gray-500 hover:text-yellow-400" title="Reset progress"
+                    >
+                      <HiOutlineRefresh className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Video Embed */}
+              {isActive && embed && (
+                <div className="px-5 pb-5">
+                  <div className="relative w-full rounded-xl overflow-hidden" style={{ paddingBottom: '56.25%' }}>
+                    {embed.type === 'video' ? (
+                      <video
+                        className="absolute inset-0 w-full h-full"
+                        src={embed.src}
+                        controls
+                        controlsList="nodownload"
+                      />
+                    ) : (
+                      <iframe
+                        className="absolute inset-0 w-full h-full"
+                        src={embed.src}
+                        title={lesson.title}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    )}
+                  </div>
                 </div>
               )}
             </div>
