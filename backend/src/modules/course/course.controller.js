@@ -2,6 +2,7 @@ import * as courseService from "./course.service.js";
 import catchAsync from "../../utils/catchAsync.js";
 import sendResponse from "../../utils/sendResponse.js";
 import AppError from "../../utils/AppError.js";
+import uploadToCloudinary from "../../utils/uploadToCloudinary.js";
 
 export const create = catchAsync(async (req, res) => {
   const data = await courseService.createCourse(req.body, req.user._id);
@@ -34,7 +35,13 @@ export const uploadThumbnail = catchAsync(async (req, res) => {
     throw new AppError("Please upload a thumbnail image", 400);
   }
 
-  const thumbnailUrl = `/uploads/thumbnails/${req.file.filename}`;
-  const data = await courseService.updateCourse(req.params.id, { thumbnailUrl });
+  const result = await uploadToCloudinary(req.file.buffer, {
+    folder: "lms/thumbnails",
+    resourceType: "image",
+  });
+
+  const data = await courseService.updateCourse(req.params.id, {
+    thumbnailUrl: result.url,
+  });
   sendResponse(res, 200, "Thumbnail uploaded", data);
 });

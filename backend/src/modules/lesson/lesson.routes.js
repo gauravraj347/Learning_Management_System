@@ -6,6 +6,7 @@ import {
 } from "./lesson.validator.js";
 import validate from "../../middlewares/validate.js";
 import { protect, authorize } from "../../middlewares/auth.js";
+import { uploadVideo } from "../../middlewares/upload.js";
 
 const router = Router({ mergeParams: true }); // mergeParams to access :courseId
 
@@ -33,5 +34,14 @@ router.put(
 );
 
 router.delete("/:id", protect, authorize("admin"), lessonController.remove);
+
+// ── Upload video to Cloudinary ──────────────────────────
+router.post(
+  "/:id/upload-video",
+  protect,
+  authorize("admin"),
+  uploadVideo,
+  lessonController.uploadVideo
+);
 
 export default router;

@@ -2,18 +2,8 @@ import multer from "multer";
 import path from "path";
 import AppError from "../utils/AppError.js";
 
-// Storage: save to /uploads/<type>/
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const type = req.uploadType || "misc";
-    cb(null, `uploads/${type}`);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const ext = path.extname(file.originalname);
-    cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-  },
-});
+// Storage: keep files in memory (buffer) for Cloudinary upload
+const storage = multer.memoryStorage();
 
 // File filter: allow images and videos only
 const fileFilter = (req, file, cb) => {
@@ -45,7 +35,6 @@ const fileFilter = (req, file, cb) => {
 
 // Upload instances
 export const uploadThumbnail = (req, res, next) => {
-  req.uploadType = "thumbnails";
   const upload = multer({
     storage,
     fileFilter,
@@ -65,17 +54,16 @@ export const uploadThumbnail = (req, res, next) => {
 };
 
 export const uploadVideo = (req, res, next) => {
-  req.uploadType = "videos";
   const upload = multer({
     storage,
     fileFilter,
-    limits: { fileSize: 500 * 1024 * 1024 }, // 500MB
+    limits: { fileSize: 100 * 1024 * 1024 }, // 100MB (Cloudinary free tier limit)
   }).single("video");
 
   upload(req, res, (err) => {
     if (err instanceof multer.MulterError) {
       if (err.code === "LIMIT_FILE_SIZE") {
-        return next(new AppError("Video must be less than 500MB", 400));
+        return next(new AppError("Video must be less than 100MB", 400));
       }
       return next(new AppError(err.message, 400));
     }
