@@ -70,7 +70,7 @@ const Profile = () => {
       <h1 className="text-3xl font-bold text-white">My Account</h1>
 
       {/* Avatar */}
-      <div className="glass rounded-2xl p-6 flex items-center gap-5">
+      <div className="glass-card rounded-2xl p-6 flex items-center gap-5">
         <div className="relative group">
           <div className="w-20 h-20 rounded-2xl bg-primary/20 flex items-center justify-center text-3xl font-bold text-primary-light overflow-hidden">
             {user?.avatar ? (
@@ -108,7 +108,7 @@ const Profile = () => {
 
       {/* Profile Tab */}
       {activeTab === 'profile' && (
-        <form onSubmit={handleProfileUpdate} className="glass rounded-2xl p-6 space-y-4">
+        <form onSubmit={handleProfileUpdate} className="glass-card rounded-2xl p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
             <div className="relative">
@@ -138,7 +138,7 @@ const Profile = () => {
               />
             </div>
           </div>
-          <button type="submit" disabled={saving} className="w-full py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl disabled:opacity-50">
+          <button type="submit" disabled={saving} className="w-full py-3 btn-glow text-white font-bold rounded-xl disabled:opacity-50">
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </form>
@@ -146,7 +146,7 @@ const Profile = () => {
 
       {/* Security Tab */}
       {activeTab === 'security' && (
-        <form onSubmit={handlePasswordChange} className="glass rounded-2xl p-6 space-y-4">
+        <form onSubmit={handlePasswordChange} className="glass-card rounded-2xl p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Current Password</label>
             <div className="relative">
@@ -171,7 +171,7 @@ const Profile = () => {
               />
             </div>
           </div>
-          <button type="submit" disabled={saving} className="w-full py-3 bg-accent hover:bg-accent/80 text-white font-semibold rounded-xl disabled:opacity-50">
+          <button type="submit" disabled={saving} className="w-full py-3 btn-glow text-white font-bold rounded-xl disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)' }}>
             {saving ? 'Changing...' : 'Change Password'}
           </button>
         </form>

@@ -85,19 +85,21 @@ const StudentDashboard = () => {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-white">My Learning</h1>
-        <p className="text-gray-400 mt-1">Welcome back, {user?.name} 👋</p>
+        <h1 className="text-3xl font-black text-white" style={{ fontFamily: 'var(--font-display)' }}>
+          My <span className="gradient-text">Learning</span>
+        </h1>
+        <p className="text-gray-400 mt-1">Welcome back, {user?.name}</p>
       </div>
 
       {/* Stats */}
       <div className="grid sm:grid-cols-3 gap-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="glass rounded-2xl p-5 flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center`}>
+          <div key={stat.label} className="glass-card rounded-2xl p-5 flex items-center gap-4">
+            <div className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center shrink-0`}>
               <stat.icon className={`w-6 h-6 ${stat.color}`} />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">{stat.value}</p>
+              <p className="text-2xl font-black text-white" style={{ fontFamily: 'var(--font-display)' }}>{stat.value}</p>
               <p className="text-sm text-gray-400">{stat.label}</p>
             </div>
           </div>
@@ -116,11 +118,11 @@ const StudentDashboard = () => {
         {enrollments.length === 0 ? (
           <div className="glass rounded-2xl p-12 text-center">
             <HiOutlineBookOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <p className="text-xl text-gray-400">No courses yet</p>
+            <p className="text-xl font-bold text-gray-300">No courses yet</p>
             <p className="text-gray-500 mt-1 mb-6">Start learning by enrolling in a course</p>
             <Link
               to="/courses"
-              className="inline-flex px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl"
+              className="btn-glow inline-flex items-center gap-2 px-6 py-3 text-white font-bold rounded-xl text-sm"
             >
               Browse Courses
             </Link>
@@ -140,7 +142,7 @@ const StudentDashboard = () => {
                 <Link
                   key={enrollment._id}
                   to={`/progress/${course._id}`}
-                  className="glass rounded-2xl overflow-hidden group hover:bg-white/10 block"
+                  className="glass-card rounded-2xl overflow-hidden group block"
                 >
                   {/* Thumbnail */}
                   <div className="h-36 bg-gradient-to-br from-primary/30 to-surface-light overflow-hidden">

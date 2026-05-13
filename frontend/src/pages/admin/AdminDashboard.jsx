@@ -47,7 +47,9 @@ const AdminDashboard = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
+          <h1 className="text-3xl font-black text-white" style={{ fontFamily: 'var(--font-display)' }}>
+            Admin <span className="gradient-text">Dashboard</span>
+          </h1>
           <p className="text-gray-400 mt-1">Platform overview and management</p>
         </div>
         <div className="flex gap-3">
@@ -57,7 +59,7 @@ const AdminDashboard = () => {
           <Link to="/admin/payments" className="px-4 py-2.5 glass hover:bg-white/10 rounded-xl text-sm font-medium text-gray-300 flex items-center gap-2">
             <HiOutlineCurrencyRupee className="w-4 h-4" /> Payments
           </Link>
-          <Link to="/admin/courses" className="px-4 py-2.5 bg-primary hover:bg-primary-dark rounded-xl text-sm font-medium text-white flex items-center gap-2">
+          <Link to="/admin/courses" className="btn-glow px-4 py-2.5 rounded-xl text-sm font-bold text-white flex items-center gap-2">
             <HiOutlineBookOpen className="w-4 h-4" /> Courses
           </Link>
         </div>
@@ -66,13 +68,13 @@ const AdminDashboard = () => {
       {/* Stats Cards */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((card) => (
-          <div key={card.label} className="glass rounded-2xl p-5">
+          <div key={card.label} className="glass-card rounded-2xl p-5">
             <div className="flex items-center gap-3">
-              <div className={`w-11 h-11 rounded-xl ${card.bg} flex items-center justify-center`}>
+              <div className={`w-11 h-11 rounded-xl ${card.bg} flex items-center justify-center shrink-0`}>
                 <card.icon className={`w-5 h-5 ${card.color}`} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{card.value}</p>
+                <p className="text-2xl font-black text-white" style={{ fontFamily: 'var(--font-display)' }}>{card.value}</p>
                 <p className="text-xs text-gray-400">{card.label}</p>
               </div>
             </div>

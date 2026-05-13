@@ -4,7 +4,8 @@ import api from '../../api/axios';
 import toast from 'react-hot-toast';
 import {
   HiOutlinePlus, HiOutlinePencil, HiOutlineTrash, HiOutlineX,
-  HiOutlineArrowLeft, HiOutlinePlay, HiOutlineBookOpen, HiOutlineEye
+  HiOutlineArrowLeft, HiOutlinePlay, HiOutlineBookOpen, HiOutlineEye,
+  HiOutlineFilm
 } from 'react-icons/hi';
 
 const ManageLessons = () => {
@@ -15,6 +16,7 @@ const ManageLessons = () => {
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(null);
   const [form, setForm] = useState({
     title: '', content: '', videoUrl: '', sortOrder: 0, isFree: false,
   });
@@ -88,6 +90,23 @@ const ManageLessons = () => {
     }
   };
 
+  const handleVideoUpload = async (lessonId, file) => {
+    const formData = new FormData();
+    formData.append('video', file);
+    setUploadingVideo(lessonId);
+    try {
+      await api.post(`/courses/${courseId}/lessons/${lessonId}/upload-video`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      toast.success('Video uploaded to Cloudinary');
+      fetchData();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Video upload failed');
+    } finally {
+      setUploadingVideo(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
@@ -154,6 +173,23 @@ const ManageLessons = () => {
 
               {/* Actions */}
               <div className="flex items-center gap-1 shrink-0">
+                {/* Upload video to Cloudinary */}
+                <label
+                  className={`p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-blue-400 cursor-pointer ${uploadingVideo === lesson._id ? 'opacity-50 pointer-events-none' : ''}`}
+                  title="Upload Video to Cloudinary"
+                >
+                  {uploadingVideo === lesson._id ? (
+                    <div className="w-4 h-4 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin" />
+                  ) : (
+                    <HiOutlineFilm className="w-4 h-4" />
+                  )}
+                  <input
+                    type="file"
+                    accept="video/*"
+                    className="hidden"
+                    onChange={(e) => { if (e.target.files[0]) handleVideoUpload(lesson._id, e.target.files[0]); e.target.value = ''; }}
+                  />
+                </label>
                 <button onClick={() => openEdit(lesson)} className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-primary-light">
                   <HiOutlinePencil className="w-4 h-4" />
                 </button>

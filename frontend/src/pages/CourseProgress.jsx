@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
@@ -57,6 +57,7 @@ const CourseProgress = () => {
   const [loading, setLoading] = useState(true);
   const [marking, setMarking] = useState(null);
   const [activeVideo, setActiveVideo] = useState(null);
+  const watchTimeRef = useRef({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -112,6 +113,15 @@ const CourseProgress = () => {
       }
     } catch {
       toast.error('Certificate not available yet');
+    }
+  };
+
+  const handleTimeUpdate = (e, lessonId) => {
+    const currentTime = Math.floor(e.target.currentTime);
+    const lastSent = watchTimeRef.current[lessonId] || 0;
+    if (currentTime - lastSent >= 10) {
+      watchTimeRef.current[lessonId] = currentTime;
+      api.put(`/progress/${courseId}/lessons/${lessonId}/watch`, { watchedSeconds: currentTime }).catch(() => {});
     }
   };
 
@@ -269,6 +279,7 @@ const CourseProgress = () => {
                         src={embed.src}
                         controls
                         controlsList="nodownload"
+                        onTimeUpdate={(e) => handleTimeUpdate(e, lesson._id)}
                       />
                     ) : (
                       <iframe

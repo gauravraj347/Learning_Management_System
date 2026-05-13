@@ -274,7 +274,7 @@ const CourseDetail = () => {
         </div>
 
         {/* Enroll Card */}
-        <div className="glass rounded-2xl p-6 space-y-4 h-fit lg:sticky lg:top-24">
+        <div className="glass-deep rounded-2xl p-6 space-y-4 h-fit lg:sticky lg:top-24 border border-primary/15">
           <div className="text-center">
             <span className={`text-4xl font-bold ${(course.price || 0) === 0 ? 'text-green-400' : 'text-white'}`}>
               {(course.price || 0) === 0 ? 'Free' : `₹${course.price}`}
@@ -289,7 +289,7 @@ const CourseDetail = () => {
               </div>
               <button
                 onClick={() => navigate(`/progress/${id}`)}
-                className="w-full py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl"
+                className="w-full py-3 btn-glow text-white font-bold rounded-xl"
               >
                 Continue Learning
               </button>
@@ -299,7 +299,7 @@ const CourseDetail = () => {
               <button
                 onClick={handleEnroll}
                 disabled={enrolling}
-                className="w-full py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full py-3 btn-glow text-white font-bold rounded-xl disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {enrolling ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -496,7 +496,7 @@ const CourseDetail = () => {
                 <button
                   type="submit"
                   disabled={submittingReview}
-                  className="flex-1 py-3 bg-primary hover:bg-primary-dark rounded-xl text-white font-medium disabled:opacity-50"
+                  className="flex-1 py-3 btn-glow rounded-xl text-white font-bold disabled:opacity-50"
                 >
                   {submittingReview ? 'Submitting...' : myReview ? 'Update Review' : 'Submit Review'}
                 </button>

@@ -1,7 +1,27 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { HiOutlineAcademicCap, HiOutlineMenu, HiOutlineX } from 'react-icons/hi';
+
+const NavLink = ({ to, children, onClick }) => {
+  const { pathname } = useLocation();
+  const active = pathname === to || (to !== '/' && pathname.startsWith(to));
+
+  return (
+    <Link
+      to={to}
+      onClick={onClick}
+      className={`relative text-sm font-medium transition-colors duration-200 ${
+        active ? 'text-white' : 'text-gray-400 hover:text-white'
+      }`}
+    >
+      {children}
+      {active && (
+        <span className="absolute -bottom-1 left-0 right-0 h-[2px] rounded-full bg-gradient-to-r from-primary to-primary-light" />
+      )}
+    </Link>
+  );
+};
 
 const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
@@ -11,57 +31,71 @@ const Navbar = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
+    setMobileOpen(false);
   };
 
   return (
-    <nav className="sticky top-0 z-50 glass border-b border-white/10">
+    <nav className="sticky top-0 z-50 border-b border-white/[0.07]"
+      style={{
+        background: 'rgba(6, 4, 23, 0.85)',
+        backdropFilter: 'blur(24px) saturate(1.6)',
+        WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
+      }}
+    >
+      {/* Top accent line */}
+      <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
+
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <HiOutlineAcademicCap className="w-8 h-8 text-primary group-hover:text-primary-light" />
-            <span className="text-xl font-bold gradient-text">LMS Pro</span>
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="relative w-8 h-8 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center group-hover:bg-primary/30 group-hover:border-primary/50 transition-all duration-300">
+              <HiOutlineAcademicCap className="w-4.5 h-4.5 text-primary-light" />
+              <div className="absolute inset-0 rounded-xl bg-primary/10 blur-sm group-hover:bg-primary/20 transition-all duration-300" />
+            </div>
+            <span
+              className="text-lg font-bold shimmer-text"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              LMS Pro
+            </span>
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-6">
-            <Link to="/courses" className="text-gray-300 hover:text-white text-sm font-medium">
-              Courses
-            </Link>
+          <div className="hidden md:flex items-center gap-7">
+            <NavLink to="/courses">Courses</NavLink>
 
             {user ? (
               <>
                 {isAdmin ? (
-                  <Link to="/admin/dashboard" className="text-gray-300 hover:text-white text-sm font-medium">
-                    Admin Panel
-                  </Link>
+                  <NavLink to="/admin/dashboard">Admin Panel</NavLink>
                 ) : (
                   <>
-                    <Link to="/dashboard" className="text-gray-300 hover:text-white text-sm font-medium">
-                      My Learning
-                    </Link>
-                    <Link to="/wishlist" className="text-gray-300 hover:text-white text-sm font-medium">
-                      Wishlist
-                    </Link>
-                    <Link to="/payments" className="text-gray-300 hover:text-white text-sm font-medium">
-                      Payments
-                    </Link>
+                    <NavLink to="/dashboard">My Learning</NavLink>
+                    <NavLink to="/wishlist">Wishlist</NavLink>
+                    <NavLink to="/payments">Payments</NavLink>
                   </>
                 )}
 
-                <div className="flex items-center gap-3 pl-4 border-l border-white/10">
-                  <Link to="/profile" className="flex items-center gap-3 hover:opacity-80">
-                    <div className="w-8 h-8 rounded-full bg-primary/30 flex items-center justify-center text-sm font-bold text-primary-light">
+                {/* User pill */}
+                <div className="flex items-center gap-2 pl-5 border-l border-white/[0.08]">
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl hover:bg-white/5 transition-colors group"
+                  >
+                    <div className="relative w-7 h-7 rounded-full bg-gradient-to-br from-primary to-violet-500 flex items-center justify-center text-xs font-bold text-white shadow-lg">
                       {user.name?.charAt(0).toUpperCase()}
+                      <div className="absolute inset-0 rounded-full ring-2 ring-primary/30 group-hover:ring-primary/60 transition-all" />
                     </div>
-                    <div className="text-sm">
-                      <p className="text-white font-medium">{user.name}</p>
-                      <p className="text-gray-400 text-xs capitalize">{user.role}</p>
+                    <div className="text-left">
+                      <p className="text-white text-xs font-semibold leading-none">{user.name}</p>
+                      <p className="text-gray-500 text-[10px] capitalize mt-0.5">{user.role}</p>
                     </div>
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="ml-3 text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-accent/20 hover:text-accent text-gray-400 font-medium"
+                    className="text-[11px] px-3 py-1.5 rounded-lg bg-white/5 hover:bg-accent/15 hover:text-accent text-gray-500 font-medium border border-white/5 hover:border-accent/20"
                   >
                     Logout
                   </button>
@@ -69,12 +103,10 @@ const Navbar = () => {
               </>
             ) : (
               <div className="flex items-center gap-3">
-                <Link to="/login" className="text-gray-300 hover:text-white text-sm font-medium">
-                  Sign In
-                </Link>
+                <NavLink to="/login">Sign In</NavLink>
                 <Link
                   to="/register"
-                  className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg"
+                  className="btn-glow px-4 py-2 text-white text-sm font-semibold rounded-xl"
                 >
                   Get Started
                 </Link>
@@ -85,50 +117,59 @@ const Navbar = () => {
           {/* Mobile toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden text-gray-300 hover:text-white"
+            className="md:hidden w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:bg-white/10"
           >
-            {mobileOpen ? <HiOutlineX className="w-6 h-6" /> : <HiOutlineMenu className="w-6 h-6" />}
+            {mobileOpen ? <HiOutlineX className="w-5 h-5" /> : <HiOutlineMenu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden glass border-t border-white/10 px-4 pb-4 pt-2 space-y-2">
-          <Link to="/courses" onClick={() => setMobileOpen(false)} className="block py-2 text-gray-300 hover:text-white">
-            Courses
-          </Link>
-          {user ? (
-            <>
-              {isAdmin ? (
-                <Link to="/admin/dashboard" onClick={() => setMobileOpen(false)} className="block py-2 text-gray-300 hover:text-white">
-                  Admin Panel
-                </Link>
-              ) : (
-                <>
-                  <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block py-2 text-gray-300 hover:text-white">
-                    My Learning
-                  </Link>
-                  <Link to="/wishlist" onClick={() => setMobileOpen(false)} className="block py-2 text-gray-300 hover:text-white">
-                    Wishlist
-                  </Link>
-                  <Link to="/payments" onClick={() => setMobileOpen(false)} className="block py-2 text-gray-300 hover:text-white">
-                    Payments
-                  </Link>
-                </>
-              )}
-              <Link to="/profile" onClick={() => setMobileOpen(false)} className="block py-2 text-gray-300 hover:text-white">
-                Profile
+        <div
+          className="md:hidden border-t border-white/[0.07] px-4 pb-5 pt-3 space-y-1"
+          style={{ background: 'rgba(6, 4, 23, 0.95)', backdropFilter: 'blur(24px)' }}
+        >
+          {[
+            { to: '/courses', label: 'Courses' },
+            ...(user
+              ? isAdmin
+                ? [{ to: '/admin/dashboard', label: 'Admin Panel' }]
+                : [
+                    { to: '/dashboard', label: 'My Learning' },
+                    { to: '/wishlist', label: 'Wishlist' },
+                    { to: '/payments', label: 'Payments' },
+                    { to: '/profile', label: 'Profile' },
+                  ]
+              : [
+                  { to: '/login', label: 'Sign In' },
+                  { to: '/register', label: 'Get Started' },
+                ]),
+          ].map(({ to, label }) => {
+            const active = location.pathname === to;
+            return (
+              <Link
+                key={to}
+                to={to}
+                onClick={() => setMobileOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                  active
+                    ? 'bg-primary/10 text-white border border-primary/20'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {active && <span className="w-1.5 h-1.5 rounded-full bg-primary-light" />}
+                {label}
               </Link>
-              <button onClick={handleLogout} className="w-full text-left py-2 text-accent">
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" onClick={() => setMobileOpen(false)} className="block py-2 text-gray-300">Sign In</Link>
-              <Link to="/register" onClick={() => setMobileOpen(false)} className="block py-2 text-primary-light">Get Started</Link>
-            </>
+            );
+          })}
+          {user && (
+            <button
+              onClick={handleLogout}
+              className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium text-accent/80 hover:text-accent hover:bg-accent/5"
+            >
+              Logout
+            </button>
           )}
         </div>
       )}

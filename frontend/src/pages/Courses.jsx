@@ -6,53 +6,57 @@ import { HiOutlineSearch, HiOutlineStar, HiOutlineUsers, HiOutlineBookOpen } fro
 const CourseCard = ({ course }) => (
   <Link
     to={`/courses/${course._id}`}
-    className="glass rounded-2xl overflow-hidden group hover:bg-white/10 block"
+    className="glass-card rounded-2xl overflow-hidden group block"
   >
     {/* Thumbnail */}
-    <div className="h-44 bg-gradient-to-br from-primary/30 to-surface-light overflow-hidden">
+    <div className="relative h-44 bg-gradient-to-br from-primary/30 to-surface-light overflow-hidden">
       {course.thumbnailUrl ? (
-        <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+        <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
       ) : (
         <div className="w-full h-full flex items-center justify-center">
           <HiOutlineBookOpen className="w-12 h-12 text-primary/40" />
         </div>
       )}
+      {(course.price || 0) === 0 && (
+        <span className="absolute top-3 right-3 px-2.5 py-1 text-xs font-bold bg-green-500/20 text-green-400 border border-green-500/30 rounded-full backdrop-blur-sm">
+          Free
+        </span>
+      )}
     </div>
 
     {/* Content */}
     <div className="p-5">
-      {/* Category badge */}
       {course.category?.name && (
-        <span className="inline-block px-2.5 py-1 text-xs font-medium bg-primary/15 text-primary-light rounded-full mb-3">
+        <span className="inline-block px-2.5 py-1 text-xs font-semibold bg-primary/15 text-primary-light border border-primary/20 rounded-full mb-3">
           {course.category.name}
         </span>
       )}
 
-      <h3 className="text-lg font-semibold text-white group-hover:text-primary-light line-clamp-2 mb-2">
+      <h3 className="text-base font-bold text-white group-hover:text-primary-light line-clamp-2 mb-2 transition-colors" style={{ fontFamily: 'var(--font-display)' }}>
         {course.title}
       </h3>
 
-      <p className="text-sm text-gray-400 line-clamp-2 mb-4">
+      <p className="text-sm text-gray-400 line-clamp-2 mb-4 leading-relaxed">
         {course.description}
       </p>
 
       {/* Meta */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pt-2 border-t border-white/5">
         <div className="flex items-center gap-3 text-sm text-gray-400">
           {(course.averageRating || 0) > 0 && (
             <span className="flex items-center gap-1">
               <HiOutlineStar className="w-4 h-4 text-yellow-400" />
-              {Number(course.averageRating).toFixed(1)}
+              <span className="text-white font-medium">{Number(course.averageRating).toFixed(1)}</span>
             </span>
           )}
           {(course.totalReviews || 0) > 0 && (
-            <span className="flex items-center gap-1">
-              <HiOutlineUsers className="w-4 h-4" />
+            <span className="flex items-center gap-1 text-xs">
+              <HiOutlineUsers className="w-3.5 h-3.5" />
               {course.totalReviews}
             </span>
           )}
         </div>
-        <span className={`text-lg font-bold ${(course.price || 0) === 0 ? 'text-green-400' : 'text-white'}`}>
+        <span className={`text-lg font-black ${(course.price || 0) === 0 ? 'text-green-400' : 'text-white'}`} style={{ fontFamily: 'var(--font-display)' }}>
           {(course.price || 0) === 0 ? 'Free' : `₹${course.price}`}
         </span>
       </div>
@@ -112,7 +116,9 @@ const Courses = () => {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-white">Explore Courses</h1>
+        <h1 className="text-3xl font-black text-white" style={{ fontFamily: 'var(--font-display)' }}>
+          Explore <span className="gradient-text">Courses</span>
+        </h1>
         <p className="text-gray-400 mt-1">Find the perfect course for your learning goals</p>
       </div>
 

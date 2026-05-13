@@ -31,15 +31,15 @@ const Login = () => {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/20 mb-4">
+          <div className="ring-pulse inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/20 border border-primary/30 mb-4">
             <HiOutlineAcademicCap className="w-8 h-8 text-primary-light" />
           </div>
-          <h1 className="text-3xl font-bold text-white">Welcome back</h1>
+          <h1 className="text-3xl font-black text-white" style={{ fontFamily: 'var(--font-display)' }}>Welcome back</h1>
           <p className="text-gray-400 mt-2">Sign in to continue your learning journey</p>
         </div>
 
         {/* Form Card */}
-        <div className="glass rounded-2xl p-8">
+        <div className="glass-card rounded-2xl p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>
@@ -84,7 +84,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3 btn-glow text-white font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

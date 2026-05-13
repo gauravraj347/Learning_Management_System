@@ -55,11 +55,11 @@ const AdminPayments = () => {
           <h1 className="text-3xl font-bold text-white">All Payments</h1>
           <p className="text-gray-400 mt-1">{pagination.total || 0} transactions</p>
         </div>
-        <div className="glass rounded-xl px-5 py-3 flex items-center gap-3">
+        <div className="glass-card rounded-xl px-5 py-3 flex items-center gap-3">
           <HiOutlineCurrencyRupee className="w-5 h-5 text-green-400" />
           <div>
             <p className="text-xs text-gray-400">Page Revenue</p>
-            <p className="text-lg font-bold text-green-400">₹{totalRevenue}</p>
+            <p className="text-lg font-black text-green-400" style={{ fontFamily: 'var(--font-display)' }}>₹{totalRevenue}</p>
           </div>
         </div>
       </div>

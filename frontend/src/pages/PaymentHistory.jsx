@@ -56,7 +56,7 @@ const PaymentHistory = () => {
           <HiOutlineCreditCard className="w-16 h-16 text-gray-600 mx-auto mb-4" />
           <p className="text-xl text-gray-400">No payments yet</p>
           <p className="text-gray-500 mt-1 mb-6">Your purchase history will appear here</p>
-          <Link to="/courses" className="inline-flex px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl">
+          <Link to="/courses" className="btn-glow inline-flex items-center gap-2 px-6 py-3 text-white font-bold rounded-xl text-sm">
             Browse Courses
           </Link>
         </div>

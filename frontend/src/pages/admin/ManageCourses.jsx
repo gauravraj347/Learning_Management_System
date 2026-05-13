@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
-import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash, HiOutlineX, HiOutlineEye, HiOutlineEyeOff, HiOutlineUpload, HiOutlineBookOpen } from 'react-icons/hi';
+import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash, HiOutlineX, HiOutlineEye, HiOutlineEyeOff, HiOutlineUpload, HiOutlineBookOpen, HiOutlineUserGroup } from 'react-icons/hi';
 
 const ManageCourses = () => {
   const [courses, setCourses] = useState([]);
@@ -14,6 +14,13 @@ const ManageCourses = () => {
   const [form, setForm] = useState({
     title: '', description: '', price: 0, category: '', isPublished: true,
   });
+
+  // Enrollments modal state
+  const [enrollModal, setEnrollModal] = useState(null);
+  const [enrollments, setEnrollments] = useState([]);
+  const [enrollLoading, setEnrollLoading] = useState(false);
+  const [enrollPagination, setEnrollPagination] = useState({});
+  const [enrollPage, setEnrollPage] = useState(1);
 
   const fetchCourses = async () => {
     try {
@@ -79,6 +86,26 @@ const ManageCourses = () => {
     }
   };
 
+  const fetchCourseEnrollments = async (courseId, page = 1) => {
+    setEnrollLoading(true);
+    try {
+      const { data } = await api.get(`/enrollments/course/${courseId}`, { params: { page, limit: 10 } });
+      const result = data.data || data;
+      setEnrollments(result.enrollments || []);
+      setEnrollPagination(result.pagination || {});
+    } catch {
+      setEnrollments([]);
+    } finally {
+      setEnrollLoading(false);
+    }
+  };
+
+  const openEnrollments = (course) => {
+    setEnrollModal(course);
+    setEnrollPage(1);
+    fetchCourseEnrollments(course._id, 1);
+  };
+
   const handleThumbnailUpload = async (courseId, file) => {
     const formData = new FormData();
     formData.append('thumbnail', file);
@@ -100,7 +127,7 @@ const ManageCourses = () => {
           <h1 className="text-3xl font-bold text-white">Courses</h1>
           <p className="text-gray-400 mt-1">Manage your courses</p>
         </div>
-        <button onClick={openCreate} className="px-4 py-2.5 bg-primary hover:bg-primary-dark rounded-xl text-sm font-medium text-white flex items-center gap-2">
+        <button onClick={openCreate} className="btn-glow px-4 py-2.5 rounded-xl text-sm font-bold text-white flex items-center gap-2">
           <HiOutlinePlus className="w-4 h-4" /> Add Course
         </button>
       </div>
@@ -142,6 +169,9 @@ const ManageCourses = () => {
               </div>
 
               <div className="flex items-center gap-1 shrink-0">
+                <button onClick={() => openEnrollments(course)} className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-blue-400" title="View Enrolled Students">
+                  <HiOutlineUserGroup className="w-4 h-4" />
+                </button>
                 <Link to={`/admin/courses/${course._id}/lessons`} className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-green-400" title="Manage Lessons">
                   <HiOutlineBookOpen className="w-4 h-4" />
                 </Link>
@@ -164,10 +194,82 @@ const ManageCourses = () => {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Enrollments Modal */}
+      {enrollModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="glass-card rounded-2xl p-6 w-full max-w-2xl max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h2 className="text-xl font-bold text-white">Enrolled Students</h2>
+                <p className="text-sm text-gray-400 mt-0.5 truncate max-w-sm">{enrollModal.title}</p>
+              </div>
+              <button onClick={() => setEnrollModal(null)} className="text-gray-400 hover:text-white shrink-0">
+                <HiOutlineX className="w-5 h-5" />
+              </button>
+            </div>
+
+            {enrollLoading ? (
+              <div className="space-y-3 flex-1">
+                {[1, 2, 3].map(i => <div key={i} className="h-14 bg-white/5 rounded-xl animate-pulse" />)}
+              </div>
+            ) : enrollments.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center text-gray-400">
+                  <HiOutlineUserGroup className="w-12 h-12 mx-auto mb-3 text-gray-600" />
+                  <p>No enrollments yet</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="flex-1 overflow-y-auto divide-y divide-white/5">
+                  {enrollments.map((enrollment) => (
+                    <div key={enrollment._id} className="flex items-center gap-3 py-3">
+                      <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold text-primary-light shrink-0">
+                        {enrollment.student?.name?.charAt(0).toUpperCase() || '?'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white font-medium text-sm truncate">{enrollment.student?.name || 'Unknown'}</p>
+                        <p className="text-gray-400 text-xs truncate">{enrollment.student?.email || ''}</p>
+                      </div>
+                      <div className="text-right shrink-0 space-y-1">
+                        <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${
+                          enrollment.status === 'completed' ? 'bg-green-500/10 text-green-400' :
+                          enrollment.status === 'active' ? 'bg-blue-500/10 text-blue-400' :
+                          'bg-gray-500/10 text-gray-400'
+                        }`}>{enrollment.status}</span>
+                        <p className="text-xs text-gray-500">
+                          {new Date(enrollment.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {enrollPagination.pages > 1 && (
+                  <div className="flex items-center justify-center gap-2 pt-4 border-t border-white/5 mt-3">
+                    <button
+                      onClick={() => { const p = enrollPage - 1; setEnrollPage(p); fetchCourseEnrollments(enrollModal._id, p); }}
+                      disabled={enrollPage === 1}
+                      className="px-3 py-1.5 glass rounded-lg text-xs disabled:opacity-30 hover:bg-white/10"
+                    >Previous</button>
+                    <span className="text-xs text-gray-400">Page {enrollPage} of {enrollPagination.pages}</span>
+                    <button
+                      onClick={() => { const p = enrollPage + 1; setEnrollPage(p); fetchCourseEnrollments(enrollModal._id, p); }}
+                      disabled={enrollPage === enrollPagination.pages}
+                      className="px-3 py-1.5 glass rounded-lg text-xs disabled:opacity-30 hover:bg-white/10"
+                    >Next</button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Course Form Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="glass rounded-2xl p-6 w-full max-w-lg border border-white/10 max-h-[90vh] overflow-y-auto">
+          <div className="glass-card rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-xl font-bold text-white">{editing ? 'Edit Course' : 'New Course'}</h2>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white">
@@ -226,7 +328,7 @@ const ManageCourses = () => {
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-3 glass hover:bg-white/10 rounded-xl text-gray-300 font-medium">Cancel</button>
-                <button type="submit" disabled={saving} className="flex-1 py-3 bg-primary hover:bg-primary-dark rounded-xl text-white font-medium disabled:opacity-50">
+                <button type="submit" disabled={saving} className="flex-1 py-3 btn-glow rounded-xl text-white font-bold disabled:opacity-50">
                   {saving ? 'Saving...' : editing ? 'Update' : 'Create'}
                 </button>
               </div>

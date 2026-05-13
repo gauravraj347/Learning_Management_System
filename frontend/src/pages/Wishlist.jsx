@@ -53,7 +53,7 @@ const Wishlist = () => {
           <HiOutlineHeart className="w-16 h-16 text-gray-600 mx-auto mb-4" />
           <p className="text-xl text-gray-400">Your wishlist is empty</p>
           <p className="text-gray-500 mt-1 mb-6">Browse courses and save the ones you love</p>
-          <Link to="/courses" className="inline-flex px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl">
+          <Link to="/courses" className="btn-glow inline-flex items-center gap-2 px-6 py-3 text-white font-bold rounded-xl text-sm">
             Browse Courses
           </Link>
         </div>
@@ -64,7 +64,7 @@ const Wishlist = () => {
             if (!course) return null;
 
             return (
-              <div key={item._id} className="glass rounded-2xl overflow-hidden group">
+              <div key={item._id} className="glass-card rounded-2xl overflow-hidden group">
                 <Link to={`/courses/${course._id}`}>
                   <div className="h-40 bg-gradient-to-br from-primary/30 to-surface-light overflow-hidden">
                     {course.thumbnailUrl ? (

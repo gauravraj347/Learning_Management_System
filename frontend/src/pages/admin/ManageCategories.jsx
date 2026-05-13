@@ -69,7 +69,7 @@ const ManageCategories = () => {
           <h1 className="text-3xl font-bold text-white">Categories</h1>
           <p className="text-gray-400 mt-1">Manage course categories</p>
         </div>
-        <button onClick={openCreate} className="px-4 py-2.5 bg-primary hover:bg-primary-dark rounded-xl text-sm font-medium text-white flex items-center gap-2">
+        <button onClick={openCreate} className="btn-glow px-4 py-2.5 rounded-xl text-sm font-bold text-white flex items-center gap-2">
           <HiOutlinePlus className="w-4 h-4" /> Add Category
         </button>
       </div>
@@ -107,7 +107,7 @@ const ManageCategories = () => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="glass rounded-2xl p-6 w-full max-w-md border border-white/10">
+          <div className="glass-card rounded-2xl p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-xl font-bold text-white">{editing ? 'Edit Category' : 'New Category'}</h2>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white">
@@ -133,7 +133,7 @@ const ManageCategories = () => {
               </div>
               <div className="flex gap-3">
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-3 glass hover:bg-white/10 rounded-xl text-gray-300 font-medium">Cancel</button>
-                <button type="submit" disabled={saving} className="flex-1 py-3 bg-primary hover:bg-primary-dark rounded-xl text-white font-medium disabled:opacity-50">
+                <button type="submit" disabled={saving} className="flex-1 py-3 btn-glow rounded-xl text-white font-bold disabled:opacity-50">
                   {saving ? 'Saving...' : editing ? 'Update' : 'Create'}
                 </button>
               </div>
